@@ -62,7 +62,7 @@ class ArrayLike(NDArrayOperatorsMixin):
             return NotImplemented
         # extract wrapped array-like objects from args
         updated_args = []
-                
+
         for arg in args:
             try:
                 # attempt to grab an underlying array-like object
@@ -70,10 +70,10 @@ class ArrayLike(NDArrayOperatorsMixin):
                 updated_args.append(underlying_val)
             except AttributeError:
                 updated_args.append(arg)
-            
+
         # defer to NumPy implementation
         result = func(*updated_args, **kwargs)
-        
+
         # cast to original wrapper if possible
         return type(self)(result) if type(result) in self._HANDLED_TYPES else result
 
