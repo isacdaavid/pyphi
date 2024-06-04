@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 # subsystem.py
 
-"""Represents a candidate system for |small_phi| and |big_phi| evaluation,
-   with both forward and backward tpms included."""
+"""Represents a candidate system for |small_phi| and |big_phi| evaluation."""
 
 import functools
 import logging
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -56,10 +55,8 @@ class Subsystem:
 
     Attributes:
         network (Network): The network the subsystem belongs to.
-        forward_tpm (pyphi.tpm.ExplicitTPM): The forward TPM conditioned on the
-            state of the external nodes.
-        backward_tpm (pyphi.tpm.ExplicitTPM): The backward TPM conditioned on the
-            state of the external nodes.
+        tpm (pyphi.tpm.ExplicitTPM): The TPM conditioned on the state
+            of the external nodes.
         cm (np.ndarray): The connectivity matrix after applying the cut.
         state (tuple[int]): The state of the network.
         node_indices (tuple[int]): The indices of the nodes in the subsystem.
@@ -78,6 +75,7 @@ class Subsystem:
         single_node_repertoire_cache=None,
         forward_repertoire_cache=None,
         unconstrained_forward_repertoire_cache=None,
+        backward_tpm=False,
         _external_indices=None,
     ):
         # The network this subsystem belongs to.
@@ -104,15 +102,16 @@ class Subsystem:
         else:
             self.external_indices = _external_indices
 
-        # Get the TPMs conditioned on the state of the external nodes.
+        # Get the TPM conditioned on the state of the external nodes.
         external_state = utils.state_of(self.external_indices, self.state)
         background_conditions = dict(zip(self.external_indices, external_state))
-        self.backward_tpm = _backward_tpm(self.network.tpm, state, self.node_indices)
-        self.forward_tpm = self.network.tpm.condition_tpm(background_conditions)
-
-        # The TPMs for just the nodes in the subsystem.
-        self.proper_forward_tpm = self.forward_tpm.squeeze()[..., list(self.node_indices)]
-        self.proper_backward_tpm = self.backward_tpm.squeeze()[..., list(self.node_indices)]
+        self.backward_tpm = backward_tpm
+        if self.backward_tpm:
+            self.tpm = _backward_tpm(self.network.tpm, state, self.node_indices)
+        else:
+            self.tpm = self.network.tpm.condition_tpm(background_conditions)
+        # The TPM for just the nodes in the subsystem.
+        self.proper_tpm = self.tpm.squeeze()[..., list(self.node_indices)]
 
         # The unidirectional cut applied for phi evaluation
         self.cut = (
@@ -137,7 +136,7 @@ class Subsystem:
         )
 
         self.nodes = generate_nodes(
-            self.forward_tpm, self.backward_tpm, self.cm, self.state, self.node_indices, self.node_labels
+            self.tpm, self.cm, self.state, self.node_indices, self.node_labels
         )
 
         validate.subsystem(self)
@@ -208,8 +207,7 @@ class Subsystem:
     @property
     def tpm_size(self):
         """int: The number of nodes in the TPM."""
-        # forward and backward tpm sizes should be the same
-        return self.forward_tpm.shape[-1]
+        return self.tpm.shape[-1]
 
     def cache_info(self):
         """Report repertoire cache statistics."""
@@ -224,7 +222,7 @@ class Subsystem:
         self._repertoire_cache.clear()
 
     def __repr__(self):
-        return "Subsystem2(" + ", ".join(map(repr, self.nodes)) + ")"
+        return "Subsystem(" + ", ".join(map(repr, self.nodes)) + ")"
 
     def __str__(self):
         return repr(self)
@@ -241,7 +239,7 @@ class Subsystem:
         Two Subsystems are equal if their sets of nodes, networks, and cuts are
         equal.
         """
-        if not isinstance(other, Subsystem2):
+        if not isinstance(other, Subsystem):
             return False
 
         return (
@@ -298,6 +296,7 @@ class Subsystem:
             self.state,
             self.node_indices,
             cut=cut,
+            backward_tpm=self.backward_tpm,
         )
 
     def indices2nodes(self, indices):
@@ -323,8 +322,7 @@ class Subsystem:
         mechanism_node = self._index2node[mechanism_node_index]
         # We're conditioning on this node's state, so take the TPM for the node
         # being in that state.
-	#TODO: flip to backward in other places too
-        tpm = mechanism_node.backward_tpm[..., mechanism_node.state]
+        tpm = mechanism_node.tpm[..., mechanism_node.state]
         # Marginalize-out all parents of this mechanism node that aren't in the
         # purview.
         return tpm.marginalize_out((mechanism_node.inputs - purview)).tpm
@@ -470,7 +468,6 @@ class Subsystem:
         """Return the unconstrained cause/effect repertoire over a purview."""
         return self.repertoire(direction, (), purview, **kwargs)
 
-    
     def unconstrained_cause_repertoire(self, purview, **kwargs):
         """Return the unconstrained cause repertoire for a purview.
 
@@ -485,7 +482,6 @@ class Subsystem:
         """
         return self.unconstrained_repertoire(Direction.EFFECT, purview, **kwargs)
 
-    '''
     def partitioned_repertoire(
         self, direction, partition, repertoire_distance=None, **kwargs
     ):
@@ -556,7 +552,6 @@ class Subsystem:
         return _repertoire.forward_cause_probability(
             self, mechanism, purview, purview_state, **kwargs
         )
-    '''
 
     def forward_repertoire(
         self, direction: Direction, mechanism: Tuple[int], purview: Tuple[int], **kwargs
@@ -580,7 +575,6 @@ class Subsystem:
     ) -> ArrayLike:
         return _repertoire.forward_effect_repertoire(self, mechanism, purview, **kwargs)
 
-    '''
     def unconstrained_forward_repertoire(
         self, direction: Direction, mechanism: Tuple[int], purview: Tuple[int]
     ) -> ArrayLike:
@@ -681,7 +675,6 @@ class Subsystem:
             self.cause_info(mechanism, purview, **kwargs),
             self.effect_info(mechanism, purview, **kwargs),
         )
-    '''
 
     # MIP methods
     # =========================================================================
@@ -1228,12 +1221,3 @@ class Subsystem:
             cause=cause,
             effect=effect,
         )
-
-    # System Irreducibility Analysis (sia)
-    # =========================================================================
-
-    def sia(self, **kwargs,):
-        from . import new_big_phi
-
-        return new_big_phi.sia(self, **kwargs)
-

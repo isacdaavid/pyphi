@@ -111,12 +111,11 @@ def state_reachable(subsystem):
     # reached from some state.
     # First we take the submatrix of the conditioned TPM that corresponds to
     # the nodes that are actually in the subsystem...
-    tpm = subsystem.tpm.tpm[..., subsystem.node_indices]
+    tpm = subsystem.forward_tpm.tpm[..., subsystem.node_indices]
     # Then we do the subtraction and test.
     test = tpm - np.array(subsystem.proper_state)
     if not np.any(np.logical_and(-1 < test, test < 1).all(-1)):
         raise exceptions.StateUnreachableError(subsystem.state)
-
 
 def cut(cut, node_indices):
     """Check that the cut is for only the given nodes."""
