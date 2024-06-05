@@ -1235,22 +1235,14 @@ class Subsystem:
     
     # Distinction(s)
     # =========================================================================
-    '''def distinction(self, ):
+    def distinction(self, mechanism):
+        maximally_irreducible_cause = self.find_mice(Direction.CAUSE, mechanism)
+        maximally_irreducible_effect = self.find_mice(Direction.EFFECT, mechanism)
+
+        return Concept(
+            mechanism=mechanism,
+            cause=maximally_irreducible_cause,
+            effect=maximally_irreducible_effect
+        )
     
-    # define candidate mechanism
-mechanism = (0,)
-
-# compute its maximally irreducible cause
-maximally_irreducible_cause = candidate_cause_complex.find_mice(pyphi.Direction.CAUSE, mechanism,)
-
-# compute its maximally irreducible effect
-maximally_irreducible_effect = candidate_effect_complex.find_mice(pyphi.Direction.EFFECT, mechanism,)
-
-# combine them into a distinction
-distinction = pyphi.models.mechanism.Concept(
-  mechanism=mechanism,
-  cause=maximally_irreducible_cause,
-  effect=maximally_irreducible_effect
-)
-distinction'''
-
+    
