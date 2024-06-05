@@ -11,6 +11,7 @@ from typing import Iterable, Tuple, Optional
 
 import numpy as np
 from numpy.typing import ArrayLike
+from tqdm.auto import tqdm
 
 from . import cache, conf, connectivity, distribution, metrics
 from . import repertoire as _repertoire
@@ -28,6 +29,7 @@ from .models import (
     NullCut,
     RepertoireIrreducibilityAnalysis,
     _null_ria,
+    CauseEffectStructure
 )
 from .models.mechanism import ShortCircuitConditions, StateSpecification
 from .network import irreducible_purviews
@@ -1245,4 +1247,20 @@ class Subsystem:
             effect=maximally_irreducible_effect
         )
     
-    
+    def all_distinctions(self, **kwargs):
+        mechanisms = utils.powerset(self.node_indices, nonempty=True)
+        total = 2 ** len(self.node_indices) - 1
+
+        # for progress bar (tqdm)
+        if fallback(config.PROGRESS_BARS):
+            try:
+                total = len(mechanisms)
+            except TypeError:
+                pass
+            mechanisms = tqdm(mechanisms, total=total)
+
+        distinctions = filter(None, 
+            (self.distinction(mechanism, **kwargs) for mechanism in mechanisms)
+        )
+
+        return CauseEffectStructure(distinctions)
