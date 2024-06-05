@@ -323,7 +323,6 @@ class Subsystem:
         mechanism_node = self._index2node[mechanism_node_index]
         # We're conditioning on this node's state, so take the TPM for the node
         # being in that state.
-	#TODO: flip to backward in other places too
         tpm = mechanism_node.backward_tpm[..., mechanism_node.state]
         # Marginalize-out all parents of this mechanism node that aren't in the
         # purview.
@@ -387,8 +386,7 @@ class Subsystem:
         # pylint: disable=missing-docstring
         purview_node = self._index2node[purview_node_index]
         # Condition on the state of the purview inputs that are in the mechanism
-        purview_node.tpm = purview_node.tpm
-        tpm = purview_node.tpm.condition_tpm(condition)
+        tpm = purview_node.forward_tpm.condition_tpm(condition)
         # TODO(4.0) remove reference to TPM
         # Marginalize-out the inputs that aren't in the mechanism.
         nonmechanism_inputs = purview_node.inputs - set(condition)
@@ -485,7 +483,6 @@ class Subsystem:
         """
         return self.unconstrained_repertoire(Direction.EFFECT, purview, **kwargs)
 
-    '''
     def partitioned_repertoire(
         self, direction, partition, repertoire_distance=None, **kwargs
     ):
@@ -556,7 +553,6 @@ class Subsystem:
         return _repertoire.forward_cause_probability(
             self, mechanism, purview, purview_state, **kwargs
         )
-    '''
 
     def forward_repertoire(
         self, direction: Direction, mechanism: Tuple[int], purview: Tuple[int], **kwargs
@@ -1232,8 +1228,29 @@ class Subsystem:
     # System Irreducibility Analysis (sia)
     # =========================================================================
 
-    def sia(self, **kwargs,):
+    def sia(self, **kwargs):
         from . import new_big_phi
 
         return new_big_phi.sia(self, **kwargs)
+    
+    # Distinction(s)
+    # =========================================================================
+    '''def distinction(self, ):
+    
+    # define candidate mechanism
+mechanism = (0,)
+
+# compute its maximally irreducible cause
+maximally_irreducible_cause = candidate_cause_complex.find_mice(pyphi.Direction.CAUSE, mechanism,)
+
+# compute its maximally irreducible effect
+maximally_irreducible_effect = candidate_effect_complex.find_mice(pyphi.Direction.EFFECT, mechanism,)
+
+# combine them into a distinction
+distinction = pyphi.models.mechanism.Concept(
+  mechanism=mechanism,
+  cause=maximally_irreducible_cause,
+  effect=maximally_irreducible_effect
+)
+distinction'''
 
