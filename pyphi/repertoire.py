@@ -52,6 +52,7 @@ def forward_cause_probability(
         mechanism=purview,
         purview=mechanism,
         mechanism_state=purview_state,
+        use_backward_tpm=True
     )
     return er.squeeze()[mechanism_state]
 

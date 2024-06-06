@@ -383,11 +383,15 @@ class Subsystem:
         self,
         condition: FrozenMap[int, int],
         purview_node_index: int,
+        use_backward_tpm: bool
     ):
         # pylint: disable=missing-docstring
         purview_node = self._index2node[purview_node_index]
         # Condition on the state of the purview inputs that are in the mechanism
-        tpm = purview_node.forward_tpm.condition_tpm(condition)
+        if use_backward_tpm:
+            tpm = purview_node.backward_tpm.condition_tpm(condition)
+        else:
+            tpm = purview_node.forward_tpm.condition_tpm(condition)
         # TODO(4.0) remove reference to TPM
         # Marginalize-out the inputs that aren't in the mechanism.
         nonmechanism_inputs = purview_node.inputs - set(condition)
@@ -402,6 +406,7 @@ class Subsystem:
         self,
         condition: FrozenMap[int, int],
         purview: Tuple[int],
+        use_backward_tpm: bool
     ):
         # Preallocate the repertoire with the proper shape, so that
         # probabilities are broadcasted appropriately.
@@ -413,10 +418,10 @@ class Subsystem:
         # should be fixed
         return joint * functools.reduce(
             np.multiply,
-            [self._single_node_effect_repertoire(condition, p) for p in purview],
+            [self._single_node_effect_repertoire(condition, p, use_backward_tpm) for p in purview],
         )
 
-    def effect_repertoire(self, mechanism, purview, mechanism_state=None):
+    def effect_repertoire(self, mechanism, purview, mechanism_state=None, use_backward_tpm=False):
         """Return the effect repertoire of a mechanism over a purview.
 
         Args:
@@ -440,7 +445,7 @@ class Subsystem:
         if mechanism_state is None:
             mechanism_state = utils.state_of(mechanism, self.state)
         condition = FrozenMap(zip(mechanism, mechanism_state))
-        return self._effect_repertoire(condition, purview)
+        return self._effect_repertoire(condition, purview, use_backward_tpm)
 
     def repertoire(self, direction, mechanism, purview, **kwargs):
         """Return the cause or effect repertoire based on a direction.
