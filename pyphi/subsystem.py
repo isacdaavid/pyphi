@@ -35,7 +35,6 @@ from .models.mechanism import ShortCircuitConditions, StateSpecification
 from .network import irreducible_purviews
 from .node import generate_nodes
 from .partition import mip_partitions
-from .repertoire import forward_repertoire, unconstrained_forward_repertoire
 from .tpm import backward_tpm as _backward_tpm
 from .utils import state_of
 
@@ -243,7 +242,7 @@ class Subsystem:
         Two Subsystems are equal if their sets of nodes, networks, and cuts are
         equal.
         """
-        if not isinstance(other, Subsystem2):
+        if not isinstance(other, Subsystem):
             return False
 
         return (
@@ -578,7 +577,6 @@ class Subsystem:
     ) -> ArrayLike:
         return _repertoire.forward_effect_repertoire(self, mechanism, purview, **kwargs)
 
-    '''
     def unconstrained_forward_repertoire(
         self, direction: Direction, mechanism: Tuple[int], purview: Tuple[int]
     ) -> ArrayLike:
@@ -604,6 +602,7 @@ class Subsystem:
             self, mechanism, purview
         )
 
+    '''
     def expand_repertoire(self, direction, repertoire, new_purview=None):
         """Distribute an effect repertoire over a larger purview.
 
@@ -973,15 +972,13 @@ class Subsystem:
                 mechanism,
                 purview,
             )
-            repertoire = forward_repertoire(
+            repertoire = self.forward_repertoire(
                 direction,
-                self,
                 mechanism,
                 purview,
             )
-            unconstrained_repertoire = unconstrained_forward_repertoire(
+            unconstrained_repertoire = self.unconstrained_forward_repertoire(
                 direction,
-                self,
                 mechanism,
                 purview,
             )
