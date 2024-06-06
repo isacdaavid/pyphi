@@ -607,7 +607,6 @@ class Subsystem:
             self, mechanism, purview
         )
 
-    '''
     def expand_repertoire(self, direction, repertoire, new_purview=None):
         """Distribute an effect repertoire over a larger purview.
 
@@ -683,7 +682,6 @@ class Subsystem:
             self.cause_info(mechanism, purview, **kwargs),
             self.effect_info(mechanism, purview, **kwargs),
         )
-    '''
 
     # MIP methods
     # =========================================================================
