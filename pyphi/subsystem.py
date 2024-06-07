@@ -3,7 +3,7 @@
 # subsystem.py
 
 """Represents a candidate system for |small_phi| and |big_phi| evaluation,
-   with both forward and backward TPMs included."""
+   with both cause and effect TPMs included."""
 
 import functools
 import logging
@@ -29,7 +29,7 @@ from .models import (
     NullCut,
     RepertoireIrreducibilityAnalysis,
     _null_ria,
-    CauseEffectStructure
+    CauseEffectStructure,
 )
 from .models.mechanism import ShortCircuitConditions, StateSpecification
 from .network import irreducible_purviews
@@ -57,9 +57,9 @@ class Subsystem:
 
     Attributes:
         network (Network): The network the subsystem belongs to.
-        forward_tpm (pyphi.tpm.ExplicitTPM): The forward TPM conditioned on the
+        cause_tpm (pyphi.tpm.ExplicitTPM): The backward (cause) TPM conditioned on the
             state of the external nodes.
-        backward_tpm (pyphi.tpm.ExplicitTPM): The backward TPM conditioned on the
+        effect_tpm (pyphi.tpm.ExplicitTPM): The forward (effect) TPM conditioned on the
             state of the external nodes.
         cm (np.ndarray): The connectivity matrix after applying the cut.
         state (tuple[int]): The state of the network.
@@ -108,12 +108,12 @@ class Subsystem:
         # Get the TPMs conditioned on the state of the external nodes.
         external_state = utils.state_of(self.external_indices, self.state)
         background_conditions = dict(zip(self.external_indices, external_state))
-        self.backward_tpm = _backward_tpm(self.network.tpm, state, self.node_indices)
-        self.forward_tpm = self.network.tpm.condition_tpm(background_conditions)
+        self.cause_tpm = _backward_tpm(self.network.tpm, state, self.node_indices)
+        self.effect_tpm = self.network.tpm.condition_tpm(background_conditions)
 
         # The TPMs for just the nodes in the subsystem.
-        self.proper_forward_tpm = self.forward_tpm.squeeze()[..., list(self.node_indices)]
-        self.proper_backward_tpm = self.backward_tpm.squeeze()[..., list(self.node_indices)]
+        self.proper_effect_tpm = self.effect_tpm.squeeze()[..., list(self.node_indices)]
+        self.proper_cause_tpm = self.cause_tpm.squeeze()[..., list(self.node_indices)]
 
         # The unidirectional cut applied for phi evaluation
         self.cut = (
@@ -138,7 +138,12 @@ class Subsystem:
         )
 
         self.nodes = generate_nodes(
-            self.forward_tpm, self.backward_tpm, self.cm, self.state, self.node_indices, self.node_labels
+            self.cause_tpm,
+            self.effect_tpm,
+            self.cm,
+            self.state,
+            self.node_indices,
+            self.node_labels,
         )
 
         validate.subsystem(self)
@@ -210,9 +215,9 @@ class Subsystem:
     def tpm_size(self):
         """int: The number of nodes in the TPM."""
         # forward and backward TPM sizes should be the same
-        if self.forward_tpm.shape[-1] != self.backward_tpm.shape[-1]:
-            raise ValueError("forward and backward TPM sizes should be the same")
-        return self.forward_tpm.shape[-1]
+        if self.cause_tpm.shape[-1] != self.effect_tpm.shape[-1]:
+            raise ValueError("cause and effect TPM sizes should be the same")
+        return self.effect_tpm.shape[-1]
 
     def cache_info(self):
         """Report repertoire cache statistics."""
@@ -326,7 +331,7 @@ class Subsystem:
         mechanism_node = self._index2node[mechanism_node_index]
         # We're conditioning on this node's state, so take the TPM for the node
         # being in that state.
-        tpm = mechanism_node.backward_tpm[..., mechanism_node.state]
+        tpm = mechanism_node.cause_tpm[..., mechanism_node.state]
         # Marginalize-out all parents of this mechanism node that aren't in the
         # purview.
         return tpm.marginalize_out((mechanism_node.inputs - purview)).tpm
@@ -385,15 +390,18 @@ class Subsystem:
         self,
         condition: FrozenMap[int, int],
         purview_node_index: int,
-        direction: Direction
+        direction: Direction,
     ):
         # pylint: disable=missing-docstring
         purview_node = self._index2node[purview_node_index]
         # Condition on the state of the purview inputs that are in the mechanism
         if direction == Direction.CAUSE:
-            tpm = purview_node.backward_tpm.condition_tpm(condition)
+            tpm = purview_node.cause_tpm.condition_tpm(condition)
         elif direction == Direction.EFFECT:
-            tpm = purview_node.forward_tpm.condition_tpm(condition)
+            tpm = purview_node.effect_tpm.condition_tpm(condition)
+        else:
+            return validate.direction(direction)
+
         # TODO(4.0) remove reference to TPM
         # Marginalize-out the inputs that aren't in the mechanism.
         nonmechanism_inputs = purview_node.inputs - set(condition)
@@ -405,10 +413,7 @@ class Subsystem:
 
     @cache.method("_repertoire_cache", Direction.EFFECT)
     def _effect_repertoire(
-        self,
-        condition: FrozenMap[int, int],
-        purview: Tuple[int],
-        direction: Direction
+        self, condition: FrozenMap[int, int], purview: Tuple[int], direction: Direction
     ):
         # Preallocate the repertoire with the proper shape, so that
         # probabilities are broadcasted appropriately.
@@ -420,10 +425,15 @@ class Subsystem:
         # should be fixed
         return joint * functools.reduce(
             np.multiply,
-            [self._single_node_effect_repertoire(condition, p, direction) for p in purview],
+            [
+                self._single_node_effect_repertoire(condition, p, direction)
+                for p in purview
+            ],
         )
 
-    def effect_repertoire(self, mechanism, purview, mechanism_state=None, direction=Direction.EFFECT):
+    def effect_repertoire(
+        self, mechanism, purview, mechanism_state=None, direction=Direction.EFFECT
+    ):
         """Return the effect repertoire of a mechanism over a purview.
 
         Args:
@@ -476,7 +486,6 @@ class Subsystem:
         """Return the unconstrained cause/effect repertoire over a purview."""
         return self.repertoire(direction, (), purview, **kwargs)
 
-    
     def unconstrained_cause_repertoire(self, purview, **kwargs):
         """Return the unconstrained cause repertoire for a purview.
 
@@ -1236,7 +1245,7 @@ class Subsystem:
         from . import new_big_phi
 
         return new_big_phi.sia(self, **kwargs)
-    
+
     # Distinction(s)
     # =========================================================================
     def distinction(self, mechanism):
@@ -1246,9 +1255,9 @@ class Subsystem:
         return Concept(
             mechanism=mechanism,
             cause=maximally_irreducible_cause,
-            effect=maximally_irreducible_effect
+            effect=maximally_irreducible_effect,
         )
-    
+
     def all_distinctions(self, **kwargs):
         mechanisms = utils.powerset(self.node_indices, nonempty=True)
         total = 2 ** len(self.node_indices) - 1
@@ -1261,8 +1270,8 @@ class Subsystem:
                 pass
             mechanisms = tqdm(mechanisms, total=total)
 
-        distinctions = filter(None, 
-            (self.distinction(mechanism, **kwargs) for mechanism in mechanisms)
+        distinctions = filter(
+            None, (self.distinction(mechanism, **kwargs) for mechanism in mechanisms)
         )
 
         return CauseEffectStructure(distinctions)
