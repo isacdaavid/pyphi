@@ -23,16 +23,16 @@ class Node:
     """A node in a subsystem.
 
     Args:
-        forward_tpm (ExplicitTPM): The forward TPM of the subsystem.
-        backward_tpm (ExplicitTPM): The backward TPM of the subsystem.
+        cause_tpm (ExplicitTPM): The cause (backward) TPM of the subsystem.
+        effect_tpm (ExplicitTPM): The effect (forward) TPM of the subsystem.
         cm (np.ndarray): The CM of the subsystem.
         index (int): The node's index in the network.
         state (int): The state of this node.
         node_labels (|NodeLabels|): Labels for these nodes.
 
     Attributes:
-        forward_tpm (ExplicitTPM),
-        backward_tpm (ExplicitTPM): The node TPM is an array with shape ``(2,)*(n + 1)``,
+        cause_tpm (ExplicitTPM),
+        effect_tpm (ExplicitTPM): The node TPM is an array with shape ``(2,)*(n + 1)``,
             where ``n`` is the size of the |Network|. The first ``n``
             dimensions correspond to each node in the system. Dimensions
             corresponding to nodes that provide input to this node are of size
@@ -44,7 +44,7 @@ class Node:
             probabilities that the node will be 'ON'.
     """
 
-    def __init__(self, forward_tpm, backward_tpm, cm, index, state, node_labels):
+    def __init__(self, cause_tpm, effect_tpm, cm, index, state, node_labels):
         # This node's index in the list of nodes.
         self.index = index
 
@@ -65,8 +65,8 @@ class Node:
         # but its last dimension will be gone, since now there's just a single
         # scalar value (this node's state) rather than a state-vector for all
         # the network nodes.
-        forward_tpm_on = forward_tpm[..., self.index]
-        backward_tpm_on = backward_tpm[..., self.index]
+        cause_tpm_on = cause_tpm[..., self.index]
+        effect_tpm_on = effect_tpm[..., self.index]
 
         # TODO extend to nonbinary nodes
         # Marginalize out non-input nodes that are in the subsystem, since the
@@ -74,53 +74,54 @@ class Node:
         # the subsystem's TPM.
 
         # TODO use names rather than indices
-        forward_non_inputs = set(forward_tpm.tpm_indices()) - self._inputs
-        forward_tpm_on = forward_tpm_on.marginalize_out(forward_non_inputs).tpm
-        backward_non_inputs = set(backward_tpm.tpm_indices()) - self._inputs
-        backward_tpm_on = backward_tpm_on.marginalize_out(backward_non_inputs).tpm
+        cause_non_inputs = set(cause_tpm.tpm_indices()) - self._inputs
+        cause_tpm_on = cause_tpm_on.marginalize_out(cause_non_inputs).tpm
+
+        effect_non_inputs = set(effect_tpm.tpm_indices()) - self._inputs
+        effect_tpm_on = effect_tpm_on.marginalize_out(effect_non_inputs).tpm
 
         # Get the TPM that gives the probability of the node being off, rather
         # than on.
-        forward_tpm_off = 1 - forward_tpm_on
-        backward_tpm_off = 1 - backward_tpm_on
+        cause_tpm_off = 1 - cause_tpm_on
+        effect_tpm_off = 1 - effect_tpm_on
 
         # Combine the on- and off-TPM so that the first dimension is indexed by
         # the state of the node's inputs at t, and the last dimension is
         # indexed by the node's state at t+1. This representation makes it easy
         # to condition on the node state.
-        self.forward_tpm = ExplicitTPM(
-            np.stack([forward_tpm_off, forward_tpm_on], axis=-1),
+        self.cause_tpm = ExplicitTPM(
+            np.stack([cause_tpm_off, cause_tpm_on], axis=-1),
         )
-        self.backward_tpm = ExplicitTPM(
-            np.stack([backward_tpm_off, backward_tpm_on], axis=-1),
+        self.effect_tpm = ExplicitTPM(
+            np.stack([effect_tpm_off, effect_tpm_on], axis=-1),
         )
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         # Only compute the hash once.
         self._hash = hash(
-            (index, hash(self.forward_tpm), hash(self.backward_tpm), self.state,
+            (index, hash(self.cause_tpm), hash(self.effect_tpm), self.state,
              self._inputs, self._outputs)
         )
 
     @property
-    def forward_tpm_off(self):
-        """The forward TPM of this node containing only the 'OFF' probabilities."""
-        return self.forward_tpm[..., 0]
+    def cause_tpm_off(self):
+        """The cause (backward) TPM of this node containing only the 'OFF' probabilities."""
+        return self.cause_tpm[..., 0]
 
     @property
-    def backward_tpm_off(self):
-        """The backward TPM of this node containing only the 'OFF' probabilities."""
-        return self.backward_tpm[..., 0]
+    def effect_tpm_off(self):
+        """The effect (forward) TPM of this node containing only the 'OFF' probabilities."""
+        return self.effect_tpm[..., 0]
 
     @property
-    def forward_tpm_on(self):
-        """The forward TPM of this node containing only the 'ON' probabilities."""
-        return self.forward_tpm[..., 1]
+    def cause_tpm_on(self):
+        """The cause (backward) TPM of this node containing only the 'ON' probabilities."""
+        return self.cause_tpm[..., 1]
 
     @property
-    def backward_tpm_on(self):
-        """The backward TPM of this node containing only the 'ON' probabilities."""
-        return self.backward_tpm[..., 1]
+    def effect_tpm_on(self):
+        """The effect (forward) TPM of this node containing only the 'ON' probabilities."""
+        return self.effect_tpm[..., 1]
 
     @property
     def inputs(self):
@@ -155,8 +156,8 @@ class Node:
         """
         return (
             self.index == other.index
-            and self.forward_tpm.array_equal(other.forward_tpm)
-            and self.backward_tpm.array_equal(other.backward_tpm)
+            and self.cause_tpm.array_equal(other.cause_tpm)
+            and self.effect_tpm.array_equal(other.effect_tpm)
             and self.state == other.state
             and self.inputs == other.inputs
             and self.outputs == other.outputs
@@ -177,12 +178,12 @@ class Node:
         return self.index
 
 
-def generate_nodes(forward_tpm, backward_tpm, cm, network_state, indices, node_labels=None):
+def generate_nodes(cause_tpm, effect_tpm, cm, network_state, indices, node_labels=None):
     """Generate |Node| objects for a subsystem.
 
     Args:
-        forward_tpm (ExplicitTPM): The system's forward_TPM
-        backward_tpm (ExplicitTPM): The system's backward_TPM
+        cause_tpm (ExplicitTPM): The system's cause (backward) TPM
+        effect_tpm (ExplicitTPM): The system's effect (forward) TPM
         cm (np.ndarray): The corresponding CM.
         network_state (tuple): The state of the network.
         indices (tuple[int]): Indices to generate nodes for.
@@ -199,7 +200,7 @@ def generate_nodes(forward_tpm, backward_tpm, cm, network_state, indices, node_l
     node_state = utils.state_of(indices, network_state)
 
     return tuple(
-        Node(forward_tpm, backward_tpm, cm, index, state, node_labels)
+        Node(cause_tpm, effect_tpm, cm, index, state, node_labels)
         for index, state in zip(indices, node_state)
     )
 

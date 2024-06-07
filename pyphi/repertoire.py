@@ -53,7 +53,7 @@ def forward_cause_probability(
         mechanism=purview,
         purview=mechanism,
         mechanism_state=purview_state,
-        direction=Direction.CAUSE
+        direction=Direction.CAUSE,
     )
     return er.squeeze()[mechanism_state]
 
