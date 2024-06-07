@@ -8,6 +8,7 @@ from numpy.typing import ArrayLike
 
 from . import utils
 from .distribution import repertoire_shape
+from .direction import Direction
 
 # TODO(repertoire) refactor to be more independent of subsystem when TPM
 # overhaul is done; e.g. no longer need 'tpm_size' with named dimensions
@@ -52,7 +53,7 @@ def forward_cause_probability(
         mechanism=purview,
         purview=mechanism,
         mechanism_state=purview_state,
-        use_backward_tpm=True
+        direction=Direction.CAUSE
     )
     return er.squeeze()[mechanism_state]
 

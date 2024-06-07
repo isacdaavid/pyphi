@@ -3,7 +3,7 @@
 # subsystem.py
 
 """Represents a candidate system for |small_phi| and |big_phi| evaluation,
-   with both forward and backward tpms included."""
+   with both forward and backward TPMs included."""
 
 import functools
 import logging
@@ -209,7 +209,9 @@ class Subsystem:
     @property
     def tpm_size(self):
         """int: The number of nodes in the TPM."""
-        # forward and backward tpm sizes should be the same
+        # forward and backward TPM sizes should be the same
+        if self.forward_tpm.shape[-1] != self.backward_tpm.shape[-1]:
+            raise ValueError("forward and backward TPM sizes should be the same")
         return self.forward_tpm.shape[-1]
 
     def cache_info(self):
@@ -225,7 +227,7 @@ class Subsystem:
         self._repertoire_cache.clear()
 
     def __repr__(self):
-        return "Subsystem2(" + ", ".join(map(repr, self.nodes)) + ")"
+        return "Subsystem(" + ", ".join(map(repr, self.nodes)) + ")"
 
     def __str__(self):
         return repr(self)
@@ -383,14 +385,14 @@ class Subsystem:
         self,
         condition: FrozenMap[int, int],
         purview_node_index: int,
-        use_backward_tpm: bool
+        direction: Direction
     ):
         # pylint: disable=missing-docstring
         purview_node = self._index2node[purview_node_index]
         # Condition on the state of the purview inputs that are in the mechanism
-        if use_backward_tpm:
+        if direction == Direction.CAUSE:
             tpm = purview_node.backward_tpm.condition_tpm(condition)
-        else:
+        elif direction == Direction.EFFECT:
             tpm = purview_node.forward_tpm.condition_tpm(condition)
         # TODO(4.0) remove reference to TPM
         # Marginalize-out the inputs that aren't in the mechanism.
@@ -406,7 +408,7 @@ class Subsystem:
         self,
         condition: FrozenMap[int, int],
         purview: Tuple[int],
-        use_backward_tpm: bool
+        direction: Direction
     ):
         # Preallocate the repertoire with the proper shape, so that
         # probabilities are broadcasted appropriately.
@@ -418,10 +420,10 @@ class Subsystem:
         # should be fixed
         return joint * functools.reduce(
             np.multiply,
-            [self._single_node_effect_repertoire(condition, p, use_backward_tpm) for p in purview],
+            [self._single_node_effect_repertoire(condition, p, direction) for p in purview],
         )
 
-    def effect_repertoire(self, mechanism, purview, mechanism_state=None, use_backward_tpm=False):
+    def effect_repertoire(self, mechanism, purview, mechanism_state=None, direction=Direction.EFFECT):
         """Return the effect repertoire of a mechanism over a purview.
 
         Args:
@@ -445,7 +447,7 @@ class Subsystem:
         if mechanism_state is None:
             mechanism_state = utils.state_of(mechanism, self.state)
         condition = FrozenMap(zip(mechanism, mechanism_state))
-        return self._effect_repertoire(condition, purview, use_backward_tpm)
+        return self._effect_repertoire(condition, purview, direction)
 
     def repertoire(self, direction, mechanism, purview, **kwargs):
         """Return the cause or effect repertoire based on a direction.
