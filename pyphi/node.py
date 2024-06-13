@@ -23,14 +23,16 @@ class Node:
     """A node in a subsystem.
 
     Args:
-        tpm (ExplicitTPM): The TPM of the subsystem.
+        cause_tpm (ExplicitTPM): The cause (backward) TPM of the subsystem.
+        effect_tpm (ExplicitTPM): The effect (forward) TPM of the subsystem.
         cm (np.ndarray): The CM of the subsystem.
         index (int): The node's index in the network.
         state (int): The state of this node.
         node_labels (|NodeLabels|): Labels for these nodes.
 
     Attributes:
-        tpm (ExplicitTPM): The node TPM is an array with shape ``(2,)*(n + 1)``,
+        cause_tpm (ExplicitTPM),
+        effect_tpm (ExplicitTPM): The node TPM is an array with shape ``(2,)*(n + 1)``,
             where ``n`` is the size of the |Network|. The first ``n``
             dimensions correspond to each node in the system. Dimensions
             corresponding to nodes that provide input to this node are of size
@@ -42,7 +44,7 @@ class Node:
             probabilities that the node will be 'ON'.
     """
 
-    def __init__(self, tpm, cm, index, state, node_labels):
+    def __init__(self, cause_tpm, effect_tpm, cm, index, state, node_labels):
         # This node's index in the list of nodes.
         self.index = index
 
@@ -56,14 +58,15 @@ class Node:
         self._inputs = frozenset(get_inputs_from_cm(self.index, cm))
         self._outputs = frozenset(get_outputs_from_cm(self.index, cm))
 
-        # Generate the node's TPM.
+        # Generate the node's TPMs.
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # We begin by getting the part of the subsystem's TPM that gives just
         # the state of this node. This part is still indexed by network state,
         # but its last dimension will be gone, since now there's just a single
         # scalar value (this node's state) rather than a state-vector for all
         # the network nodes.
-        tpm_on = tpm[..., self.index]
+        cause_tpm_on = cause_tpm[..., self.index]
+        effect_tpm_on = effect_tpm[..., self.index]
 
         # TODO extend to nonbinary nodes
         # Marginalize out non-input nodes that are in the subsystem, since the
@@ -71,36 +74,54 @@ class Node:
         # the subsystem's TPM.
 
         # TODO use names rather than indices
-        non_inputs = set(tpm.tpm_indices()) - self._inputs
-        tpm_on = tpm_on.marginalize_out(non_inputs).tpm
+        cause_non_inputs = set(cause_tpm.tpm_indices()) - self._inputs
+        cause_tpm_on = cause_tpm_on.marginalize_out(cause_non_inputs).tpm
+
+        effect_non_inputs = set(effect_tpm.tpm_indices()) - self._inputs
+        effect_tpm_on = effect_tpm_on.marginalize_out(effect_non_inputs).tpm
 
         # Get the TPM that gives the probability of the node being off, rather
         # than on.
-        tpm_off = 1 - tpm_on
+        cause_tpm_off = 1 - cause_tpm_on
+        effect_tpm_off = 1 - effect_tpm_on
 
         # Combine the on- and off-TPM so that the first dimension is indexed by
         # the state of the node's inputs at t, and the last dimension is
         # indexed by the node's state at t+1. This representation makes it easy
         # to condition on the node state.
-        self.tpm = ExplicitTPM(
-            np.stack([tpm_off, tpm_on], axis=-1),
+        self.cause_tpm = ExplicitTPM(
+            np.stack([cause_tpm_off, cause_tpm_on], axis=-1),
+        )
+        self.effect_tpm = ExplicitTPM(
+            np.stack([effect_tpm_off, effect_tpm_on], axis=-1),
         )
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         # Only compute the hash once.
         self._hash = hash(
-            (index, hash(self.tpm), self.state, self._inputs, self._outputs)
+            (index, hash(self.cause_tpm), hash(self.effect_tpm), self.state,
+             self._inputs, self._outputs)
         )
 
     @property
-    def tpm_off(self):
-        """The TPM of this node containing only the 'OFF' probabilities."""
-        return self.tpm[..., 0]
+    def cause_tpm_off(self):
+        """The cause (backward) TPM of this node containing only the 'OFF' probabilities."""
+        return self.cause_tpm[..., 0]
 
     @property
-    def tpm_on(self):
-        """The TPM of this node containing only the 'ON' probabilities."""
-        return self.tpm[..., 1]
+    def effect_tpm_off(self):
+        """The effect (forward) TPM of this node containing only the 'OFF' probabilities."""
+        return self.effect_tpm[..., 0]
+
+    @property
+    def cause_tpm_on(self):
+        """The cause (backward) TPM of this node containing only the 'ON' probabilities."""
+        return self.cause_tpm[..., 1]
+
+    @property
+    def effect_tpm_on(self):
+        """The effect (forward) TPM of this node containing only the 'ON' probabilities."""
+        return self.effect_tpm[..., 1]
 
     @property
     def inputs(self):
@@ -135,7 +156,8 @@ class Node:
         """
         return (
             self.index == other.index
-            and self.tpm.array_equal(other.tpm)
+            and self.cause_tpm.array_equal(other.cause_tpm)
+            and self.effect_tpm.array_equal(other.effect_tpm)
             and self.state == other.state
             and self.inputs == other.inputs
             and self.outputs == other.outputs
@@ -156,11 +178,12 @@ class Node:
         return self.index
 
 
-def generate_nodes(tpm, cm, network_state, indices, node_labels=None):
+def generate_nodes(cause_tpm, effect_tpm, cm, network_state, indices, node_labels=None):
     """Generate |Node| objects for a subsystem.
 
     Args:
-        tpm (ExplicitTPM): The system's TPM
+        cause_tpm (ExplicitTPM): The system's cause (backward) TPM
+        effect_tpm (ExplicitTPM): The system's effect (forward) TPM
         cm (np.ndarray): The corresponding CM.
         network_state (tuple): The state of the network.
         indices (tuple[int]): Indices to generate nodes for.
@@ -177,7 +200,7 @@ def generate_nodes(tpm, cm, network_state, indices, node_labels=None):
     node_state = utils.state_of(indices, network_state)
 
     return tuple(
-        Node(tpm, cm, index, state, node_labels)
+        Node(cause_tpm, effect_tpm, cm, index, state, node_labels)
         for index, state in zip(indices, node_state)
     )
 
