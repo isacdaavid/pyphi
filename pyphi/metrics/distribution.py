@@ -8,7 +8,6 @@ from contextlib import ContextDecorator
 from math import log2
 
 import numpy as np
-from pyemd import emd as _emd
 from scipy.spatial.distance import cdist
 from scipy.special import entr, rel_entr
 
@@ -20,6 +19,38 @@ from ..distribution import flatten, marginal_zero
 from ..registry import Registry
 
 _LN_OF_2 = np.log(2)
+
+
+class OptionalEMD:
+    """Class to handle EMD computations.
+
+    Allows deferring import of `pyemd` in case it is not needed.
+    """
+
+    def __init__(self):
+        self._pyemd = None
+
+    @property
+    def pyemd(self):
+        if self._pyemd is None:
+            try:
+                import pyemd
+
+                self._pyemd = pyemd
+            except ImportError as exc:
+                raise ImportError(
+                    "PyEMD is required for this functionality. "
+                    "Please reinstall with the optional dependency "
+                    "specifier `pyphi[emd]`."
+                ) from exc
+        return self._pyemd
+
+    def compute(self, *args, **kwargs):
+        return self.pyemd.emd(*args, **kwargs)
+
+
+# Usage
+EMD = OptionalEMD()
 
 
 class DistributionMeasureRegistry(Registry):
@@ -197,7 +228,7 @@ def hamming_emd(p, q):
     """
     N = p.squeeze().ndim
     p, q = flatten(p), flatten(q)
-    return _emd(p, q, _hamming_matrix(N))
+    return EMD.compute(p, q, _hamming_matrix(N))
 
 
 def effect_emd(p, q):
