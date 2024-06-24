@@ -58,6 +58,7 @@ import shutil
 import tempfile
 import warnings
 from copy import copy
+from importlib.metadata import version
 from pathlib import Path
 from typing import Mapping
 from warnings import warn
@@ -66,7 +67,7 @@ import ray
 import toolz
 import yaml
 
-from . import __about__, constants
+from . import constants
 
 log = logging.getLogger(__name__)
 
@@ -900,7 +901,7 @@ class PyphiConfig(Config):
 
     def log(self):
         """Log current settings."""
-        log.info("PyPhi v%s", __about__.__version__)
+        log.info("PyPhi v%s", version("pyphi"))
         if self._loaded_files:
             log.info("Loaded configuration from %s", self._loaded_files)
         else:

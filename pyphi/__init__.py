@@ -71,7 +71,6 @@ import os
 import pkgutil
 
 # Lift main interfaces to top-level namespace
-from .__about__ import *
 from .actual import Transition
 from .conf import config
 from .direction import Direction
