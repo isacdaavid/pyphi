@@ -9,12 +9,16 @@ import logging
 import multiprocessing
 from itertools import cycle
 from textwrap import indent
-from typing import Any, Callable, Iterable, List, Optional
+from typing import Any, Callable, Iterable, List, Optional, TYPE_CHECKING
 
-import ray
+if TYPE_CHECKING:
+    from ray import ObjectRef
+
 from more_itertools import chunked_even, flatten
 from tqdm.auto import tqdm
 
+from ..ray import ray, NO_RAY, NO_PARALLEL_MSG
+from ..exceptions import NoParallelError
 from ..conf import config, fallback
 from ..utils import try_len
 from .progress import ProgressBar, throttled_update, wait_then_finish
@@ -79,7 +83,7 @@ def shortcircuit(
             return
 
 
-def as_completed(object_refs: List[ray.ObjectRef], num_returns: int = 1):
+def as_completed(object_refs: "List[ObjectRef]", num_returns: int = 1):
     """Yield remote results in order of completion."""
     unfinished = object_refs
     while unfinished:
@@ -87,8 +91,8 @@ def as_completed(object_refs: List[ray.ObjectRef], num_returns: int = 1):
         yield from ray.get(finished)
 
 
-@functools.wraps(ray.cancel)
 def cancel_all(object_refs: Iterable, *args, **kwargs):
+    """Cancel all remote tasks."""
     try:
         for ref in object_refs:
             ray.cancel(ref, *args, **kwargs)
@@ -306,6 +310,8 @@ class MapReduce:
         self._shortcircuit_callback = shortcircuit_callback
 
         if self.parallel:
+            if NO_RAY:
+                raise NoParallelError(NO_PARALLEL_MSG)
             self.constraints = get_constraints(
                 total=self.total,
                 chunksize=chunksize,

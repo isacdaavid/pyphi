@@ -63,11 +63,11 @@ from pathlib import Path
 from typing import Mapping
 from warnings import warn
 
-import ray
 import toolz
 import yaml
 
 from . import constants
+from .ray import NO_RAY, NO_PARALLEL_MSG
 
 log = logging.getLogger(__name__)
 
@@ -381,6 +381,15 @@ def on_change_distinction_phi_normalization(obj):
         )
 
 
+def on_change_parallel(obj):
+    for option, value in obj.options().items():
+        if option.startswith("PARALLEL") and value and NO_RAY:
+            warnings.warn(
+                NO_PARALLEL_MSG,
+                stacklevel=6,
+            )
+
+
 # TODO(configuration) actual causation parallel config
 class PyphiConfig(Config):
     """``pyphi.config`` is an instance of this class."""
@@ -458,10 +467,14 @@ class PyphiConfig(Config):
     PARALLEL = Option(
         True,
         type=bool,
+        on_change=on_change_parallel,
         doc="""
     Global switch to turn off parallelization: if ``False``, parallelization is
     never used, regardless of parallelization settings for individual options;
-    otherwise parallelization is determined by those settings.""",
+    otherwise parallelization is determined by those settings.
+
+    IMPORTANT: Parallelization requires extra dependencies; please install PyPhi
+    with `pyphi[parallel]` to enable parallelization.""",
     )
 
     PARALLEL_COMPLEX_EVALUATION = Option(
@@ -472,6 +485,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of candidate systems within a network.""",
     )
@@ -484,6 +498,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of system partitions.""",
     )
@@ -496,6 +511,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of candidate mechanisms.""",
     )
@@ -508,6 +524,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of candidate purviews.""",
     )
@@ -520,6 +537,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of mechanism partitions.""",
     )
@@ -532,6 +550,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
+        on_change=on_change_parallel,
         doc="""
     Controls parallel evaluation of relations.
 
@@ -1000,7 +1019,8 @@ def on_driver():
     return True
 
 
-if on_driver():
+def driver_config():
+    """Handle configuration for the main instance."""
     # We're a main instance; load the user config
     try:
         config.load_file(PYPHI_USER_CONFIG_PATH)
@@ -1009,11 +1029,20 @@ if on_driver():
     # Ensure write to disk in case no config was loaded (i.e. onchange was not
     # triggered)
     write_to_cache(config)
-else:
+
+
+def remote_config():
+    """Handle configuration for remote instances."""
     # We're in a remote instance; load the PyPhi-managed config
     config.load_file(PYPHI_MANAGED_CONFIG_PATH)
     # Disable progress bars on remote processes
     config.PROGRESS_BARS = False
+
+
+if NO_RAY or on_driver():
+    driver_config()
+else:
+    remote_config()
 
 # We've loaded/written; now we can allow loading
 _LOADED = True

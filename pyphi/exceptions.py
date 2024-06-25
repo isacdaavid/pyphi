@@ -2,6 +2,15 @@
 
 """PyPhi exceptions."""
 
+from .ray import NO_PARALLEL_MSG
+
+
+class NoParallelError(ImportError):
+    pass
+
+
+NoParallelError.__doc__ = NO_PARALLEL_MSG
+
 
 class StateUnreachableError(ValueError):
     """The current state cannot be reached from any previous state."""
