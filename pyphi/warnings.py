@@ -26,3 +26,7 @@ def warn_about_tie_serialization(
             "information was lost during serialization."
         )
     warnings.warn(msg.format(name=name), PyPhiWarning, stacklevel=stacklevel)
+
+
+class NoParallelWarning(PyPhiWarning):
+    """Warn about missing dependencies for parallelization."""
