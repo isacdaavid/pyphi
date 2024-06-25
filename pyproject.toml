@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyphi"
-version = "2.0.0rc1"
+version = "2.0.0a1"
 description = "A package for integrated information theory"
 readme = "README.md"
 license = {text = "GNU General Public License v3 or later (GPLv3+)"}
