@@ -53,9 +53,27 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-parallel = ["ray[default]>=1.9.2"]
-emd = ["pyemd>=0.3.0"]
-dist = ["build", "twine"]
+parallel = [
+    "ray[default]>=1.9.2"
+]
+emd = [
+    "pyemd>=0.3.0"
+]
+dev = [
+    "asv",
+    "build",
+    "coverage",
+    "hypothesis",
+    "pytest",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "twine",
+    "watchdog"
+]
+visualize = [
+    "pandas",
+    "seaborn",
+]
 
 [project.urls]
 documentation = "https://pyphi.readthedocs.io"
