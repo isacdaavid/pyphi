@@ -19,12 +19,15 @@
 
 import os
 import sys
+from importlib.metadata import metadata
+
+meta = metadata("pyphi")
+__author__ = meta["author-email"]
+__version__ = meta["version"]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 import sphinx_rtd_theme
-
-from pyphi import __author__, __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
