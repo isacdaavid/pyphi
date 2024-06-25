@@ -178,7 +178,7 @@ class Option:
     def _callback(self, obj):
         """Trigger any callbacks."""
         if self.on_change is not None:
-            self.on_change(obj)
+            self.on_change(obj, self)
 
 
 class Config:
@@ -206,7 +206,11 @@ class Config:
             # Insert config-wide hook
             def hook(func):
                 if func is None:
-                    return self._callback
+
+                    def config_callback(*args, **kwargs):
+                        self._callback(self)
+
+                    return config_callback
 
                 @functools.wraps(func)
                 def wrapper(*args, **kwargs):
@@ -239,7 +243,7 @@ class Config:
         return self._values == other._values
 
     def _callback(self, obj):
-        """Called when any option is changed."""
+        """Config-wide callback, called when any option is changed."""
         if self._on_change is not None:
             self._on_change(obj)
 
@@ -332,7 +336,7 @@ class _override(contextlib.ContextDecorator):
         return False
 
 
-def configure_logging(conf):
+def configure_logging(conf, opt):
     """Reconfigure PyPhi logging based on the current configuration."""
     logging.config.dictConfig(
         {
@@ -366,7 +370,7 @@ def configure_logging(conf):
     )
 
 
-def on_change_distinction_phi_normalization(obj):
+def on_change_distinction_phi_normalization(obj, opt):
     if _LOADED:
         warnings.warn(
             """
