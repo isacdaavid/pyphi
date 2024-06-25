@@ -469,7 +469,7 @@ class PyphiConfig(Config):
     )
 
     PARALLEL = Option(
-        True,
+        False,
         type=bool,
         on_change=on_change_parallel,
         doc="""
@@ -483,7 +483,7 @@ class PyphiConfig(Config):
 
     PARALLEL_COMPLEX_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**4,
             chunksize=2**6,
             progress=True,
@@ -496,7 +496,7 @@ class PyphiConfig(Config):
 
     PARALLEL_CUT_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**10,
             chunksize=2**12,
             progress=True,
@@ -509,7 +509,7 @@ class PyphiConfig(Config):
 
     PARALLEL_CONCEPT_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**6,
             chunksize=2**8,
             progress=True,
@@ -522,7 +522,7 @@ class PyphiConfig(Config):
 
     PARALLEL_PURVIEW_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**6,
             chunksize=2**8,
             progress=True,
@@ -535,7 +535,7 @@ class PyphiConfig(Config):
 
     PARALLEL_MECHANISM_PARTITION_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**10,
             chunksize=2**12,
             progress=True,
@@ -548,7 +548,7 @@ class PyphiConfig(Config):
 
     PARALLEL_RELATION_EVALUATION = Option(
         dict(
-            parallel=True,
+            parallel=False,
             sequential_threshold=2**10,
             chunksize=2**12,
             progress=True,
