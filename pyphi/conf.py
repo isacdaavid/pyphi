@@ -56,7 +56,6 @@ import os
 import pprint
 import shutil
 import tempfile
-import warnings
 from copy import copy
 from importlib.metadata import version
 from pathlib import Path
@@ -67,7 +66,8 @@ import toolz
 import yaml
 
 from . import constants
-from .ray import NO_RAY, NO_PARALLEL_MSG
+from .ray import ray, NO_RAY, NO_PARALLEL_MSG
+from .warnings import NoParallelWarning, PyPhiWarning
 
 log = logging.getLogger(__name__)
 
@@ -372,7 +372,7 @@ def configure_logging(conf, opt):
 
 def on_change_distinction_phi_normalization(obj, opt):
     if _LOADED:
-        warnings.warn(
+        warn(
             """
     IMPORTANT: Changes to `DISTINCTION_PHI_NORMALIZATION` will not be reflected in
     new MICE computations for existing Subsystem objects if the MICE have been
@@ -381,17 +381,36 @@ def on_change_distinction_phi_normalization(obj, opt):
     Make sure to call `subsystem.clear_caches()` before re-computing MICE with
     the new setting.
             """,
+            category=PyPhiWarning,
             stacklevel=6,
         )
 
 
-def on_change_parallel(obj):
-    for option, value in obj.options().items():
-        if option.startswith("PARALLEL") and value and NO_RAY:
-            warnings.warn(
-                NO_PARALLEL_MSG,
-                stacklevel=6,
-            )
+def on_change_parallel_global(obj, opt):
+    if NO_RAY and obj[opt.name]:
+        warn(
+            message=(
+                f"""
+    '{opt.name}' option:"""
+                + NO_PARALLEL_MSG
+            ),
+            category=NoParallelWarning,
+            stacklevel=6,
+        )
+
+
+def on_change_parallel_suboption(obj, opt):
+    if NO_RAY and obj[opt.name].get("parallel"):
+        warn(
+            message=(
+                f"""
+    '{opt.name}' option:"""
+                + NO_PARALLEL_MSG
+            ),
+            category=NoParallelWarning,
+            stacklevel=6,
+        )
+        return
 
 
 # TODO(configuration) actual causation parallel config
@@ -471,7 +490,7 @@ class PyphiConfig(Config):
     PARALLEL = Option(
         False,
         type=bool,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_global,
         doc="""
     Global switch to turn off parallelization: if ``False``, parallelization is
     never used, regardless of parallelization settings for individual options;
@@ -489,7 +508,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of candidate systems within a network.""",
     )
@@ -502,7 +521,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of system partitions.""",
     )
@@ -515,7 +534,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of candidate mechanisms.""",
     )
@@ -528,7 +547,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of candidate purviews.""",
     )
@@ -541,7 +560,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of mechanism partitions.""",
     )
@@ -554,7 +573,7 @@ class PyphiConfig(Config):
             progress=True,
         ),
         type=Mapping,
-        on_change=on_change_parallel,
+        on_change=on_change_parallel_suboption,
         doc="""
     Controls parallel evaluation of relations.
 
