@@ -621,7 +621,7 @@ def _plot_two_relation_faces_multiple_traces(
                 legendgroup=name + theme["legendgroup_postfix"],
                 showlegend=showlegend,
                 line_showscale=showscale,
-                line_color=[color]*2,
+                line_color=[color] * 2,
                 line_width=width,
                 hovertext=hovertext,
                 **theme["two_faces"],

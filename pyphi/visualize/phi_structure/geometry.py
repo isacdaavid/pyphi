@@ -11,7 +11,6 @@ import scipy.special
 from numpy.typing import ArrayLike
 
 from ...direction import Direction
-from ...convert import state2le_index
 
 TWOPI = 2 * np.pi
 
