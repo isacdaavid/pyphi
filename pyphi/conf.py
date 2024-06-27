@@ -66,8 +66,8 @@ import toolz
 import yaml
 
 from . import constants
-from .ray import ray, NO_RAY, NO_PARALLEL_MSG
-from .warnings import NoParallelWarning, PyPhiWarning
+from .ray import ray, NO_RAY
+from .warnings import MissingOptionalDependenciesWarning, PyPhiWarning
 
 log = logging.getLogger(__name__)
 
@@ -391,10 +391,10 @@ def on_change_parallel_global(obj, opt):
         warn(
             message=(
                 f"""
-    '{opt.name}' option:"""
-                + NO_PARALLEL_MSG
+    '{opt.name}' option: """
+                + MissingOptionalDependenciesWarning.MSG.format(dependencies="parallel")
             ),
-            category=NoParallelWarning,
+            category=MissingOptionalDependenciesWarning,
             stacklevel=6,
         )
 
@@ -404,10 +404,10 @@ def on_change_parallel_suboption(obj, opt):
         warn(
             message=(
                 f"""
-    '{opt.name}' option:"""
-                + NO_PARALLEL_MSG
+    '{opt.name}' option: """
+                + MissingOptionalDependenciesWarning.MSG.format(dependencies="parallel")
             ),
-            category=NoParallelWarning,
+            category=MissingOptionalDependenciesWarning,
             stacklevel=6,
         )
         return

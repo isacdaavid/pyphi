@@ -1,10 +1,5 @@
 """Provide the optional Ray dependency."""
 
-NO_PARALLEL_MSG = """
-    Parallelization dependencies are not installed. Please
-    re-install PyPhi with `pyphi[parallel]` to use this feature.
-"""
-
 
 def identity_decorator(func):
     def wrapper(*args, **kwargs):

@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 from more_itertools import chunked_even, flatten
 from tqdm.auto import tqdm
 
-from ..ray import ray, NO_RAY, NO_PARALLEL_MSG
-from ..exceptions import NoParallelError
+from ..ray import ray, NO_RAY
+from ..exceptions import MissingOptionalDependenciesError
 from ..conf import config, fallback
 from ..utils import try_len
 from .progress import ProgressBar, throttled_update, wait_then_finish
@@ -311,7 +311,11 @@ class MapReduce:
 
         if self.parallel:
             if NO_RAY:
-                raise NoParallelError(NO_PARALLEL_MSG)
+                raise MissingOptionalDependenciesError(
+                    MissingOptionalDependenciesError.MSG.format(
+                        dependencies="parallel"
+                    ),
+                )
             self.constraints = get_constraints(
                 total=self.total,
                 chunksize=chunksize,

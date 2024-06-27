@@ -2,14 +2,11 @@
 
 """PyPhi exceptions."""
 
-from .ray import NO_PARALLEL_MSG
 
+class MissingOptionalDependenciesError(ModuleNotFoundError):
+    """The user needs to install extra dependencies."""
 
-class NoParallelError(ImportError):
-    pass
-
-
-NoParallelError.__doc__ = NO_PARALLEL_MSG
+    MSG = "Please re-install PyPhi with `pyphi[{dependencies}]` to use this feature."
 
 
 class StateUnreachableError(ValueError):

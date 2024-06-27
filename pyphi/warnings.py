@@ -4,6 +4,8 @@
 
 import warnings
 
+from . import exceptions
+
 
 class PyPhiWarning(UserWarning):
     """Class for PyPhi warnings."""
@@ -28,5 +30,7 @@ def warn_about_tie_serialization(
     warnings.warn(msg.format(name=name), PyPhiWarning, stacklevel=stacklevel)
 
 
-class NoParallelWarning(PyPhiWarning):
-    """Warn about missing dependencies for parallelization."""
+class MissingOptionalDependenciesWarning(PyPhiWarning):
+    """Warn about missing dependencies."""
+
+    MSG = exceptions.MissingOptionalDependenciesError.MSG
