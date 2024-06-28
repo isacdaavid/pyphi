@@ -160,7 +160,6 @@ class Wrapper(metaclass=ProxyMetaclass):
 
 
 class ExplicitTPM(data_structures.ArrayLike):
-
     """An explicit network TPM in multidimensional form."""
 
     _VALUE_ATTR = "_tpm"

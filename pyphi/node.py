@@ -99,8 +99,14 @@ class Node:
 
         # Only compute the hash once.
         self._hash = hash(
-            (index, hash(self.cause_tpm), hash(self.effect_tpm), self.state,
-             self._inputs, self._outputs)
+            (
+                index,
+                hash(self.cause_tpm),
+                hash(self.effect_tpm),
+                self.state,
+                self._inputs,
+                self._outputs,
+            )
         )
 
     @property

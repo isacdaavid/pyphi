@@ -515,9 +515,11 @@ class CoarseGrain(namedtuple("CoarseGrain", ["partition", "grouping"])):
 
         micro_state = np.array(micro_state)
         return tuple(
-            0
-            if sum(micro_state[list(reindexed.partition[i])]) in self.grouping[i][0]
-            else 1
+            (
+                0
+                if sum(micro_state[list(reindexed.partition[i])]) in self.grouping[i][0]
+                else 1
+            )
             for i in self.macro_indices
         )
 

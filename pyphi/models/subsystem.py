@@ -252,9 +252,11 @@ class CauseEffectStructure(cmp.Orderable, Sequence, ToPandasMixin):
 
 def flatten_distinctions(distinctions):
     return concat(
-        [distinction.cause, distinction.effect]
-        if isinstance(distinction, Concept)
-        else [distinction]
+        (
+            [distinction.cause, distinction.effect]
+            if isinstance(distinction, Concept)
+            else [distinction]
+        )
         for distinction in distinctions
     )
 

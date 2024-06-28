@@ -25,7 +25,7 @@ def forward_effect_probability(
     mechanism: Tuple[int],
     purview: Tuple[int],
     purview_state: Tuple[int],
-    **kwargs
+    **kwargs,
 ) -> float:
     return forward_effect_repertoire(subsystem, mechanism, purview, **kwargs).squeeze()[
         purview_state

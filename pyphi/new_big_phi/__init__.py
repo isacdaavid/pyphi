@@ -317,9 +317,7 @@ def sia(
         )
 
     if system_state is None:
-        system_state = system_intrinsic_information(
-            subsystem, directions=directions
-        )
+        system_state = system_intrinsic_information(subsystem, directions=directions)
 
     def _null_sia(**kwargs):
         return NullSystemIrreducibilityAnalysis(

@@ -60,12 +60,10 @@ def simulate(
     if initial_state is None:
         initial_state = tuple(rng.integers(low=0, high=2, size=tpm.number_of_units))
     elif len(initial_state) != N:
-        raise ValueError(
-            "initial_state must have length equal to the number of units"
-        )
+        raise ValueError("initial_state must have length equal to the number of units")
 
     if isinstance(clamp, Mapping):
-        clamps = [clamp]*timesteps
+        clamps = [clamp] * timesteps
     else:
         clamps = clamp
 

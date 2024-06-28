@@ -874,18 +874,22 @@ def fmt_ac_ria(ria, extended_purview=None):
     """Format an AcRepertoireIrreducibilityAnalysis."""
     causality = {
         Direction.CAUSE: (
-            fmt_mechanism(ria.purview, ria.node_labels)
-            if extended_purview is None
-            else fmt_extended_purview(ria.extended_purview, ria.node_labels),
+            (
+                fmt_mechanism(ria.purview, ria.node_labels)
+                if extended_purview is None
+                else fmt_extended_purview(ria.extended_purview, ria.node_labels)
+            ),
             ARROW_LEFT,
             fmt_mechanism(ria.mechanism, ria.node_labels),
         ),
         Direction.EFFECT: (
             fmt_mechanism(ria.mechanism, ria.node_labels),
             ARROW_RIGHT,
-            fmt_mechanism(ria.purview, ria.node_labels)
-            if extended_purview is None
-            else fmt_extended_purview(ria.extended_purview, ria.node_labels),
+            (
+                fmt_mechanism(ria.purview, ria.node_labels)
+                if extended_purview is None
+                else fmt_extended_purview(ria.extended_purview, ria.node_labels)
+            ),
         ),
     }[ria.direction]
     causality = " ".join(causality)

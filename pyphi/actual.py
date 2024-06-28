@@ -486,6 +486,7 @@ class Transition:
         ]
         max_ria = max(all_ria)
         purviews = [ria.purview for ria in all_ria if ria.alpha == max_ria.alpha]
+
         # Selected rias whose purview is not a superset of any other
         def is_not_superset(purview):
             return all(

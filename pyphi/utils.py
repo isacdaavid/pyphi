@@ -350,6 +350,7 @@ all_are_identical = all_same(operator.is_)
 
 NO_DEFAULT = object()
 
+
 # TODO test
 @curry
 def all_extrema(comparison, seq, default=NO_DEFAULT):

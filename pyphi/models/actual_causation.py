@@ -310,7 +310,6 @@ class DirectedAccount(Account):
     """
 
 
-
 _ac_sia_attributes = [
     "alpha",
     "direction",
