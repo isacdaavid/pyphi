@@ -1,4 +1,5 @@
 # new_big_phi/__init__.py
+"""Implements the IIT 4.0 formalism for system-level analysis."""
 
 from dataclasses import dataclass
 from enum import Enum, auto, unique
@@ -20,6 +21,7 @@ from ..relations import ConcreteRelations, Relations
 from ..relations import relations as compute_relations
 from ..subsystem import Subsystem
 from ..warnings import warn_about_tie_serialization
+
 
 ##############################################################################
 # Information

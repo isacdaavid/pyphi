@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# test_node.py
-
 import numpy as np
 
 from pyphi.node import Node, expand_node_tpm, generate_nodes

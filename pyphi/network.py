@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # network.py
+"""Represents the network of interest.
 
-"""
-Represents the network of interest. This is the primary object of PyPhi and the
-context of all |small_phi| and |big_phi| computation.
+This is the primary object of PyPhi and the context of all |small_phi| and
+|big_phi| computation.
 """
 
 import numpy as np

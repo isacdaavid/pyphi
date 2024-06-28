@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 # repertoire.py
+"""Compute cause-effect repertoires."""
 
 from typing import Callable, Tuple
 

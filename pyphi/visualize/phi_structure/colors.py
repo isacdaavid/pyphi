@@ -1,5 +1,4 @@
 # visualize/colors.py
-
 """Handle color computations."""
 
 from typing import Iterable

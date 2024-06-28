@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # models/subsystem.py
-
 """Subsystem-level objects."""
 
 from collections import defaultdict

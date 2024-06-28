@@ -1,4 +1,5 @@
 # graphs.py
+"""Graph-theoretic algorithms."""
 
 from .exceptions import MissingOptionalDependenciesError
 

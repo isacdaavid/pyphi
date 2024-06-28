@@ -1,5 +1,4 @@
 # conf.py
-
 """
 Configuring PyPhi
 ~~~~~~~~~~~~~~~~~

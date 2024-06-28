@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # macro.py
-
-"""
-Methods for coarse-graining systems to different levels of spatial analysis.
-"""
+"""Methods for coarse-graining systems to different levels of spatial analysis."""
 
 import itertools
 import logging

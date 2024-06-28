@@ -1,4 +1,5 @@
-# progress.py
+# parallel/progress.py
+"""Progress bars for distributed computations."""
 
 from asyncio import Event
 from time import time

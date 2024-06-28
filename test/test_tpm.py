@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# test/test_tpm.py
-
 import numpy as np
 import pickle
 import pytest
@@ -9,9 +5,9 @@ import pytest
 from pyphi import Subsystem, ExplicitTPM
 from pyphi.tpm import reconstitute_tpm
 
+
 @pytest.mark.parametrize(
-    "tpm",
-    [ExplicitTPM(np.random.rand(42)), ExplicitTPM(np.arange(42))]
+    "tpm", [ExplicitTPM(np.random.rand(42)), ExplicitTPM(np.arange(42))]
 )
 def test_serialization(tpm):
     assert tpm.array_equal(pickle.loads(pickle.dumps(tpm)))
@@ -80,6 +76,7 @@ def test_getattr():
     expected = ExplicitTPM(np.array([6, 6]))
 
     assert expected.array_equal(expected)
+
 
 def test_is_state_by_state():
     # State-by-state

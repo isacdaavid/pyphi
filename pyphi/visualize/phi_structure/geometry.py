@@ -1,6 +1,5 @@
 # visualize/phi_structure/geometry.py
-
-"""Geometric functions for plotting."""
+"""Utilities for specifying the spatial layout of |big_phi|-structures."""
 
 from itertools import combinations
 from math import cos, radians, sin

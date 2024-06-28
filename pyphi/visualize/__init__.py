@@ -1,4 +1,5 @@
 # visualize/__init__.py
+"""Provides visualization capabilities for PyPhi objects."""
 
 from ..exceptions import MissingOptionalDependenciesError
 

@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # metrics/ces.py
-
-"""
-Functions for computing distances between cause-effect structures.
-"""
+"""Functions for computing distances between cause-effect structures."""
 
 import numpy as np
 

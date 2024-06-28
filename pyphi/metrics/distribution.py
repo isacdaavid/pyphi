@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # metrics/distribution.py
-
 """Metrics on probability distributions."""
 
 from contextlib import ContextDecorator

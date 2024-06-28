@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # convert.py
-
-"""
-Conversion functions.
+"""Conversion functions.
 
 See the documentation on PyPhi :ref:`tpm-conventions` for information on the
 different representations that these functions convert between.

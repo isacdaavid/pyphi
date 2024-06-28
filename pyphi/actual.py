@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # actual.py
-
 """
 Methods for computing actual causation of subsystems and mechanisms.
 

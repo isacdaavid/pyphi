@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 # network_generator/ising.py
+"""Utitlies for implementing the Ising model."""
 
 import numpy as np
 from toolz import curry

@@ -1,8 +1,5 @@
-# compute/parallel.py
-
-"""
-Utilities for parallel computation.
-"""
+# parallel/__init__.py
+"""Provides an interface for distributed computation."""
 
 import functools
 import logging

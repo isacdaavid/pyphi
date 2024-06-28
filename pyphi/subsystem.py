@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # subsystem.py
-
-"""Represents a candidate system for |small_phi| and |big_phi| evaluation,
-   with both cause and effect TPMs included."""
+"""Represents a candidate system."""
 
 import functools
 import logging

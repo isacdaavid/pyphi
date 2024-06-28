@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # examples.py
-
-"""
-Example networks and subsystems to go along with the documentation.
-"""
+"""Example networks and subsystems to go along with the documentation."""
 
 # pylint: disable=too-many-lines
 # flake8: noqa

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3 # -*- coding: utf-8 -*-
-#
 # PyPhi documentation build configuration file, created by
 # sphinx-quickstart on Fri Jan 17 11:15:55 2014.
 #

@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # tpm.py
-
-"""
-Provides the ExplicitTPM and related classes.
-"""
+"""Provides classes for representing TPMs."""
 
 import math
 from itertools import chain

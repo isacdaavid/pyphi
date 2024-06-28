@@ -1,8 +1,5 @@
 # validate.py
-
-"""
-Methods for validating arguments.
-"""
+"""Methods for validating user input."""
 
 import numpy as np
 

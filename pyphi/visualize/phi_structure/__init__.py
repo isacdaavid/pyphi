@@ -1,4 +1,5 @@
 # visualize/phi_structure/__init__.py
+"""Visualize |big_phi|-structures."""
 
 import warnings
 from typing import Callable, Iterable

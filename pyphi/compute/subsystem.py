@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # compute/subsystem.py
-
-"""
-Functions for computing subsystem-level properties.
-"""
+"""Functions for computing subsystem-level properties."""
 
 import functools
 import logging

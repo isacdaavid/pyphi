@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # compute/network.py
-
-"""
-Functions for computing network-level properties.
-"""
+"""Functions for computing network-level properties."""
 
 import logging
 

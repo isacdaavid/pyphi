@@ -1,4 +1,5 @@
 # dynamics.py
+"""Functions for simulating system state trajectories."""
 
 from typing import Iterable, Optional, Mapping
 

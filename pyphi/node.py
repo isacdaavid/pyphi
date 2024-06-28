@@ -1,11 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # node.py
-
-"""
-Represents a node in a network. Each node has a unique index, its position in
-the network's list of nodes.
-"""
+"""Represents a node in a network."""
 
 import functools
 

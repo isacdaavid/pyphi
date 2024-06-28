@@ -1,5 +1,3 @@
-# test/test_parallel.py
-
 import time
 from datetime import timedelta
 from decimal import Decimal

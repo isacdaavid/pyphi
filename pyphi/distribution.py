@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # distribution.py
-
-"""
-Functions for manipulating probability distributions.
-"""
+"""Functions for manipulating probability distributions."""
 
 import numpy as np
 

@@ -1,5 +1,4 @@
 # exceptions.py
-
 """PyPhi exceptions."""
 
 

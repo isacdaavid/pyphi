@@ -1,5 +1,4 @@
 # warnings.py
-
 """PyPhi warnings."""
 
 import warnings

@@ -1,4 +1,5 @@
 # cache/redis.py
+"""Provides a Redis backend for caching."""
 
 import pickle
 

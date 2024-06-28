@@ -1,6 +1,5 @@
 # relations.py
-
-"""Functions for computing relations among distinctions."""
+"""Implements the formalism for computing relations."""
 
 import warnings
 from collections import defaultdict

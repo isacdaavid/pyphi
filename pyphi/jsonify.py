@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # jsonify.py
-
 """
 PyPhi- and NumPy-aware JSON serialization.
 

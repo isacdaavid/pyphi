@@ -1,10 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # models/fmt.py
-
-"""
-Helper functions for formatting pretty representations of PyPhi models.
-"""
+"""Helper functions for formatting pretty representations of PyPhi models."""
 
 from fractions import Fraction
 from itertools import chain, cycle
