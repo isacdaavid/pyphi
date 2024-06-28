@@ -11,7 +11,7 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from hypothesis.strategies import composite
 
-from pyphi.compute import parallel
+from pyphi import parallel
 
 from .hypothesis_utils import (
     anything,
@@ -106,7 +106,7 @@ def test_as_completed(ray_context, args):
 
 @given(st.lists(everything_except(Decimal)))
 def test_get_local(items):
-    with patch("pyphi.compute.parallel.cancel_all") as mock:
+    with patch("pyphi.parallel.cancel_all") as mock:
         expected = list(items)
         actual = list(parallel.get(items))
         mock.assert_not_called()

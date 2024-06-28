@@ -12,7 +12,7 @@ from .. import conf, exceptions, utils, validate
 from ..conf import config
 from ..models import _null_sia
 from ..subsystem import Subsystem
-from .parallel import MapReduce
+from ..parallel import MapReduce
 from .subsystem import sia
 
 # Create a logger for this module.

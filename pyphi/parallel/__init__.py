@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 from more_itertools import chunked_even, flatten
 from tqdm.auto import tqdm
 
-from ..ray import ray, NO_RAY
 from ..exceptions import MissingOptionalDependenciesError
 from ..conf import config, fallback
 from ..utils import try_len
 from .progress import ProgressBar, throttled_update, wait_then_finish
 from .tree import get_constraints
+from ..deferred.ray import ray, NO_RAY
 
 log = logging.getLogger(__name__)
 

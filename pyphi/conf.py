@@ -66,8 +66,9 @@ import toolz
 import yaml
 
 from . import constants
-from .ray import ray, NO_RAY
+from .deferred.ray import ray, NO_RAY
 from .warnings import MissingOptionalDependenciesWarning, PyPhiWarning
+
 
 log = logging.getLogger(__name__)
 

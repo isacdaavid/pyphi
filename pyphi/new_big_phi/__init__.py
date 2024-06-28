@@ -6,7 +6,7 @@ from typing import Iterable, Optional, Tuple, Union
 
 from .. import compute, conf, connectivity, utils, validate
 from ..compute.network import reachable_subsystems
-from ..compute.parallel import MapReduce
+from ..parallel import MapReduce
 from ..conf import config, fallback
 from ..data_structures import PyPhiFloat
 from ..direction import Direction

@@ -25,7 +25,7 @@ from itertools import chain
 import numpy as np
 
 from . import compute, conf, connectivity, exceptions, utils, validate
-from .compute.parallel import MapReduce
+from .parallel import MapReduce
 from .conf import config
 from .direction import Direction
 from .metrics.distribution import actual_causation_measures as measures

@@ -4,7 +4,7 @@ from asyncio import Event
 from time import time
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from ..ray import ray
+from ..deferred.ray import ray
 
 if TYPE_CHECKING:
     import ray

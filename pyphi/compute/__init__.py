@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # compute/__init__.py
 
 """
-See |compute.subsystem|, |compute.network|, |compute.distance|, and
-|compute.parallel| for documentation.
+See |compute.subsystem| and |compute.network| for documentation.
 
 Attributes:
     all_complexes: Alias for :func:`pyphi.compute.network.all_complexes`.

@@ -16,7 +16,7 @@ from tqdm.auto import tqdm
 from . import cache, conf, connectivity, distribution, metrics
 from . import repertoire as _repertoire
 from . import resolve_ties, utils, validate
-from .compute.parallel import MapReduce
+from .parallel import MapReduce
 from .conf import config, fallback
 from .data_structures import FrozenMap
 from .direction import Direction
