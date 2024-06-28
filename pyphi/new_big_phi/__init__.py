@@ -308,7 +308,7 @@ def sia(
     #   - empty;
     #   - an elementary micro mechanism (i.e. no nontrivial bipartitions).
     # So in those cases we immediately return a null SIA.
-    def _null_sia(**kwargs):            
+    def _null_sia(**kwargs):
         return NullSystemIrreducibilityAnalysis(
             system_state=system_state,
             node_indices=subsystem.node_indices,
@@ -323,7 +323,7 @@ def sia(
     if not connectivity.is_strong(subsystem.cm, subsystem.node_indices):
         # subsystem is not strongly connected
         return _null_sia()
-    
+
     # Handle elementary micro mechanism cases.
     # Single macro element systems have nontrivial bipartitions because their
     #   bipartitions are over their micro elements.
@@ -335,7 +335,6 @@ def sia(
         elif not config.SINGLE_MICRO_NODES_WITH_SELFLOOPS_HAVE_PHI:
             return _null_sia()
     # =========================================================================
-
 
     if partitions is None:
         filter_func = None
