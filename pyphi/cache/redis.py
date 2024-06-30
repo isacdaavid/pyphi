@@ -3,22 +3,22 @@
 
 import pickle
 
-from ..exceptions import MissingOptionalDependenciesError
-
-try:
-    import redis
-except ImportError as exc:
-    raise MissingOptionalDependenciesError(
-        MissingOptionalDependenciesError.MSG.format("caching")
-    ) from exc
-
 from .. import constants
 from ..conf import config
 
 from .cache_utils import _CacheInfo
 
+try:
+    import redis
+
+    NO_REDIS = False
+except ModuleNotFoundError as exc:
+    NO_REDIS = True
+
 
 def init(db):
+    if NO_REDIS:
+        return None
     return redis.StrictRedis(
         host=config.REDIS_CONFIG["host"], port=config.REDIS_CONFIG["port"], db=db
     )
@@ -29,7 +29,8 @@ def init(db):
 # client detects a fork. See:
 # https://github.com/andymccurdy/redis-py/blob/5109cb4f/redis/connection.py#L950
 #
-# TODO: rebuild connection after config changes?
+# TODO(redis): rebuild connection after config changes and warn in on_change if
+# set to True
 conn = init(config.REDIS_CONFIG["db"])
 
 
