@@ -5,7 +5,7 @@ from .exceptions import MissingOptionalDependenciesError
 
 try:
     import igraph as ig
-except ImportError as exc:
+except ModuleNotFoundError as exc:
     raise MissingOptionalDependenciesError(
         MissingOptionalDependenciesError.MSG.format(dependencies="graphs")
     ) from exc

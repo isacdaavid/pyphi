@@ -30,6 +30,6 @@ try:
     import ray
 
     NO_RAY = False
-except ImportError:
+except ModuleNotFoundError:
     ray = NoRay()
     NO_RAY = True
