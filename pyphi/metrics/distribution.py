@@ -13,6 +13,7 @@ from ..cache import joblib_memory
 from ..conf import config, fallback
 from ..direction import Direction
 from ..distribution import flatten, marginal_zero
+from ..exceptions import MissingOptionalDependenciesError
 from ..registry import Registry
 
 _LN_OF_2 = np.log(2)
@@ -34,11 +35,9 @@ class OptionalEMD:
                 import pyemd
 
                 self._pyemd = pyemd
-            except ImportError as exc:
-                raise ImportError(
-                    "PyEMD is required for this functionality. "
-                    "Please reinstall with the optional dependency "
-                    "specifier `pyphi[emd]`."
+            except ModuleNotFoundError as exc:
+                raise ModuleNotFoundError(
+                    MissingOptionalDependenciesError.MSG.format(dependencies="pyemd")
                 ) from exc
         return self._pyemd
 
