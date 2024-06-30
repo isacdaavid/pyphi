@@ -77,7 +77,8 @@ from .network import Network
 from .subsystem import Subsystem
 from .tpm import ExplicitTPM
 
-_skip_import = ["visualize"]
+# Skip modules that require optional dependencies
+_skip_import = ["visualize", "graphs"]
 
 
 def _import_submodules(package, recursive=True):
