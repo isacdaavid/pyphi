@@ -50,7 +50,7 @@ def empty_transition(transition):
 
 @pytest.fixture
 def prevention():
-    return examples.prevention()
+    return examples.prevention_transition()
 
 
 # Testing background conditions
@@ -129,8 +129,8 @@ def test_background_noised():
     transition = actual.Transition(
         network, state, state, (0,), (0,), noise_background=True
     )
-    assert transition.cause_system.tpm.array_equal(network.tpm)
-    assert transition.effect_system.tpm.array_equal(network.tpm)
+    assert transition.cause_system.effect_tpm.array_equal(network.tpm)
+    assert transition.effect_system.effect_tpm.array_equal(network.tpm)
 
 
 @pytest.fixture
