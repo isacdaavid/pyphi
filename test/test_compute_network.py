@@ -4,8 +4,6 @@ import pytest
 
 from pyphi import Network, Subsystem, compute, config, constants, utils
 
-from .test_big_phi import check_sia, standard_answer
-
 
 def test_possible_complexes(s):
     assert list(compute.network.possible_complexes(s.network, s.state)) == [
