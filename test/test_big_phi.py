@@ -136,13 +136,13 @@ def test_sia_big_network_0_thru_3_parallel(
 # Has ties, so just checking big phi for now
 
 
-@pytest.mark.slow
+@pytest.mark.veryslow
 @config.override(PARALLEL=False)
 def test_sia_rule152_s_sequential(rule152_s, rule152_s_expected_sia):
     assert rule152_s.sia().phi == rule152_s_expected_sia.phi
 
 
-@pytest.mark.slow
+@pytest.mark.veryslow
 def test_sia_rule152_s_parallel(rule152_s, rule152_s_expected_sia):
     assert rule152_s.sia().phi == rule152_s_expected_sia.phi
 
@@ -197,6 +197,7 @@ def test_sia_macro_parallel(macro_s, macro_s_expected_sia):
 """
 
 @pytest.mark.outdated
+@pytest.mark.slow
 @config.override(SYSTEM_PARTITION_TYPE="DIRECTED_BI")
 def test_system_cut_styles(s):
     with config.override(SYSTEM_CUTS="3.0_STYLE"):
