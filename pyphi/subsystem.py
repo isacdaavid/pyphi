@@ -91,6 +91,7 @@ class Subsystem:
 
         # The state of the network.
         self.state = tuple(state)
+        validate.node_states(self.state)
 
         # Get the external node indices.
         # TODO: don't expose this as an attribute?
@@ -104,8 +105,14 @@ class Subsystem:
         # Get the TPMs conditioned on the state of the external nodes.
         external_state = utils.state_of(self.external_indices, self.state)
         background_conditions = dict(zip(self.external_indices, external_state))
-        self.cause_tpm = _backward_tpm(self.network.tpm, state, self.node_indices)
         self.effect_tpm = self.network.tpm.condition_tpm(background_conditions)
+
+        if config.VALIDATE_SUBSYSTEM_STATES:
+            validate.state_reachable(self)
+
+        self.cause_tpm = _backward_tpm(
+            self.network.tpm, state, self.node_indices
+        )
 
         # The TPMs for just the nodes in the subsystem.
         self.proper_effect_tpm = self.effect_tpm.squeeze()[..., list(self.node_indices)]
@@ -115,6 +122,7 @@ class Subsystem:
         self.cut = (
             cut if cut is not None else NullCut(self.node_indices, self.node_labels)
         )
+        validate.cut(self.cut, self.cut_indices)
 
         # The network's connectivity matrix with cut applied
         self.cm = self.cut.apply_cut(network.cm)
@@ -141,8 +149,6 @@ class Subsystem:
             self.node_indices,
             self.node_labels,
         )
-
-        validate.subsystem(self)
 
     @property
     def nodes(self):
