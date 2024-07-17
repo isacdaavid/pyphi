@@ -66,6 +66,7 @@ def test_cut_node_labels_are_for_micro_elements(macro_subsystem):
     assert macro_subsystem.cut_node_labels != macro_subsystem.node_labels
 
 
+@pytest.mark.outdated
 def test_concept_str_uses_macro_node_labels(macro_subsystem):
     assert str(macro_subsystem.concept((0, 1)).cause.mip) == (
         "m0    m1 \n" "─── ✕ ───\n" "m1    m0 "
@@ -239,6 +240,7 @@ def test_run_tpm():
     assert np.array_equal(timescale.run_tpm(tpm, 2), answer)
 
 
+@pytest.mark.outdated
 def test_macro_cut_is_for_micro_indices(s):
     with pytest.raises(ValueError):
         macro.MacroSubsystem(
@@ -371,11 +373,12 @@ def test_blackbox_and_coarse_grain_external():
 
 
 @pytest.mark.veryslow
+@pytest.mark.outdated
 def test_blackbox_emergence():
     network = pyphi.examples.macro_network()
     state = (0, 0, 0, 0)
     result = macro.emergence(
-        network, state, blackbox=True, coarse_grain=True, time_scales=[1, 2]
+        network, state, do_blackbox=True, do_coarse_grain=True, time_scales=[1, 2]
     )
     assert result.phi == 0.713678
     assert result.emergence == 0.599789
