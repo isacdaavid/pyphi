@@ -53,10 +53,10 @@ class Subsystem:
 
     Attributes:
         network (Network): The network the subsystem belongs to.
-        cause_tpm (pyphi.tpm.ExplicitTPM): The backward (cause) TPM conditioned on the
-            state of the external nodes.
-        effect_tpm (pyphi.tpm.ExplicitTPM): The forward (effect) TPM conditioned on the
-            state of the external nodes.
+        cause_tpm (pyphi.tpm.ExplicitTPM): The cause TPM conditioned on the
+            probability distribution over states of the background nodes.
+        effect_tpm (pyphi.tpm.ExplicitTPM): The effect TPM conditioned on the
+            state of the background nodes.
         cm (np.ndarray): The connectivity matrix after applying the cut.
         state (tuple[int]): The state of the network.
         node_indices (tuple[int]): The indices of the nodes in the subsystem.
