@@ -103,10 +103,20 @@ class RelationFace(frozenset):
 class Relation(frozenset, cmp.OrderableByPhi):
     """A set of relation faces forming the relation among a set of distinctions."""
 
+    @property
+    def is_self_relation(self):
+        return len(self) == 1
+
     def _faces(self):
         """Yield faces of the relation."""
+        # Exclude single-relatum faces for self-relations as a special case
+        if self.is_self_relation:
+            direction_set = [Direction.BIDIRECTIONAL]
+        else:
+            direction_set = Direction.all()
+
         distinctions = list(self)
-        for directions in product(Direction.all(), repeat=len(self)):
+        for directions in product(direction_set, repeat=len(self)):
             mice = []
             for direction, distinction in zip(directions, distinctions):
                 if direction is Direction.BIDIRECTIONAL:
@@ -133,10 +143,6 @@ class Relation(frozenset, cmp.OrderableByPhi):
             return distinction.cause.purview_units & distinction.effect.purview_units
 
         return set.intersection(*(distinction.purview_union for distinction in self))
-
-    @property
-    def is_self_relation(self):
-        return len(self) == 1
 
     @cached_property
     def phi(self):
