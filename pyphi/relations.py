@@ -176,6 +176,14 @@ class Relation(frozenset, cmp.OrderableByPhi):
         body = fmt.header(self.__class__.__name__, body, under_char=fmt.HEADER_BAR_2)
         return fmt.box(body)
 
+    def to_json(self):
+        """Return a JSON-serializable representation."""
+        return dict(distinctions=list(self))
+
+    @classmethod
+    def from_json(cls, data):
+        return cls(data["distinctions"])
+
 
 def all_relations(distinctions, min_degree=2, max_degree=None, **kwargs):
     """Yield causal relations among a set of distinctions."""
@@ -249,6 +257,14 @@ class Relations:
             (f"Σ{fmt.SMALL_PHI}_r", self.sum_phi()),
             ("#(relations)", self.num_relations()),
         ]
+
+    def to_json(self):
+        """Return a JSON-serializable representation."""
+        return dict(relations=list(self))
+
+    @classmethod
+    def from_json(cls, data):
+        return cls(data["relations"])
 
 
 class ConcreteRelations(frozenset, Relations):
