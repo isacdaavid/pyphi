@@ -134,6 +134,8 @@ def plot_phi_structure(
             mechanism_mapping,
             **theme["geometry"]["mechanisms"].get("coordinate_kwargs", dict()),
         )
+    else:
+        mechanism_mapping = mechanism_coords.mapping
 
     purview_mapping = theme["geometry"]["purviews"].get("mapping")
     if purview_mapping is None:
